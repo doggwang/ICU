@@ -4,6 +4,7 @@
 """
 
 import shutil
+import send2trash
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from collections import defaultdict
@@ -145,14 +146,15 @@ class ReportProcessor:
             
             for dup_file in files[1:]:
                 try:
-                    dup_file.unlink()
+                    # 移动到回收站而不是永久删除
+                    send2trash.send2trash(str(dup_file))
                     duplicates_count += 1
-                    print(f"      [删除重复] {dup_file.name}")
+                    print(f"      [移到回收站] {dup_file.name}")
                 except Exception as e:
-                    print(f"      [删除失败] {dup_file.name}: {e}")
+                    print(f"      [移动失败] {dup_file.name}: {e}")
         
         if duplicates_count > 0:
-            print(f"      共删除 {duplicates_count} 个重复文件")
+            print(f"      共移动 {duplicates_count} 个重复文件到回收站")
         
         return unique_files
     

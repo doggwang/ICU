@@ -44,14 +44,38 @@ def extract_text_with_pdfplumber(pdf_path: Path) -> Optional[str]:
     """
     try:
         with pdfplumber.open(pdf_path) as pdf:
+            # 检查 PDF 是否加密
+            if pdf.metadata and pdf.metadata.get('Encryption'):
+                print(f"  [PDF加密] {pdf_path.name}: 文件已加密，无法读取")
+                return None
+            
             text = ""
-            for page in pdf.pages:
-                page_text = page.extract_text()
-                if page_text:
-                    text += page_text + "\n"
+            for page_num, page in enumerate(pdf.pages, 1):
+                try:
+                    page_text = page.extract_text()
+                    if page_text:
+                        text += page_text + "\n"
+                except Exception as e:
+                    print(f"  [读取警告] {pdf_path.name} 第{page_num}页: {e}")
+                    continue
+            
+            if not text.strip():
+                print(f"  [PDF无文本] {pdf_path.name}: 可能是扫描版PDF")
+                return None
+                
             return text
+            
+    except pdfplumber.pdfminer.pdfparser.PDFSyntaxError as e:
+        print(f"  [PDF损坏] {pdf_path.name}: 文件格式错误")
+        return None
     except Exception as e:
-        print(f"pdfplumber 读取失败 {pdf_path}: {e}")
+        error_msg = str(e).lower()
+        if 'password' in error_msg or 'encryption' in error_msg:
+            print(f"  [PDF加密] {pdf_path.name}: 文件需要密码")
+        elif 'corrupt' in error_msg or 'damaged' in error_msg:
+            print(f"  [PDF损坏] {pdf_path.name}: 文件已损坏")
+        else:
+            print(f"  [读取失败] {pdf_path.name}: {e}")
         return None
 
 
