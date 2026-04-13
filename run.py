@@ -35,6 +35,7 @@ def print_menu():
     print("  1. 只分类整理 PDF")
     print("  2. 分类整理 + 生成 Excel")
     print("  3. 从已分类的文件生成 Excel")
+    print("  4. 检查并清理重复文件")
     print("  0. 退出")
     print("\n" + "=" * 50)
 
@@ -143,50 +144,48 @@ def option_1_classify_only():
         processor = create_processor()
         
         # 只执行分类整理
-        pdf_files = get_all_pdf_files(input_dir)
-        print(f"\n找到 {len(pdf_files)} 个 PDF 文件")
+        all_pdf_files = get_all_pdf_files(input_dir)
+        print(f"\n找到 {len(all_pdf_files)} 个 PDF 文件")
         
-        if len(pdf_files) == 0:
+        if len(all_pdf_files) == 0:
             print("没有文件需要处理")
             return False
         
-        # 如果是增量模式，过滤掉已存在的文件
+        # 如果是增量模式，分离出新文件和已存在的文件
+        skipped_files = []
         if mode == "incremental":
             existing_files = get_existing_files_map(output_dir)
             new_files = []
-            skipped_count = 0
             
-            for pdf_path in pdf_files:
+            for pdf_path in all_pdf_files:
                 md5 = get_file_md5(pdf_path)
                 if md5 and md5 in existing_files:
-                    skipped_count += 1
+                    skipped_files.append(pdf_path)
                 else:
                     new_files.append(pdf_path)
             
             pdf_files = new_files
-            print(f"  跳过 {skipped_count} 个已存在的文件")
+            print(f"  跳过 {len(skipped_files)} 个已存在的文件")
             print(f"  实际处理 {len(pdf_files)} 个新文件")
+        else:
+            pdf_files = all_pdf_files
+        
+        # 分类并处理新文件
+        if len(pdf_files) > 0:
+            classified = processor._classify_reports(pdf_files)
+            processor._organize_files(classified, output_dir)
             
-            if len(pdf_files) == 0:
-                print("\n没有新文件需要处理")
-                return True
-        
-        # 分类
-        classified = processor._classify_reports(pdf_files)
-        
-        # 整理文件
-        processor._organize_files(classified, output_dir)
-        
-        print("\n✓ 分类完成！")
-        for folder_name, files in classified.items():
-            print(f"  {folder_name}: {len(files)} 个文件")
+            print("\n✓ 分类完成！")
+            for folder_name, files in classified.items():
+                print(f"  {folder_name}: {len(files)} 个文件")
         
         if mode == "incremental":
             print(f"\n（原有文件已保留，只添加了新文件）")
         
-        # 归档处理过的文件
+        # 归档所有扫描过的文件（包括新处理的和跳过的重复文件）
         print("\n[归档] 移动已处理的文件到 raw/已处理/...")
-        archive_processed_files(pdf_files, input_dir)
+        all_processed_files = pdf_files + skipped_files
+        archive_processed_files(all_processed_files, input_dir)
         
         return True
         
@@ -247,30 +246,32 @@ def option_2_classify_and_export():
         processor = create_processor()
         
         # 获取所有 PDF 文件
-        pdf_files = get_all_pdf_files(input_dir)
-        print(f"\n扫描到 {len(pdf_files)} 个 PDF 文件")
+        all_pdf_files = get_all_pdf_files(input_dir)
+        print(f"\n扫描到 {len(all_pdf_files)} 个 PDF 文件")
         
-        # 如果是增量模式，过滤掉已存在的文件
+        # 如果是增量模式，分离出新文件和已存在的文件
+        skipped_files = []
         if mode == "incremental":
             existing_files = get_existing_files_map(organized_dir)
             new_files = []
-            skipped_count = 0
             
-            for pdf_path in pdf_files:
+            for pdf_path in all_pdf_files:
                 md5 = get_file_md5(pdf_path)
                 if md5 and md5 in existing_files:
-                    skipped_count += 1
+                    skipped_files.append(pdf_path)
                 else:
                     new_files.append(pdf_path)
             
             pdf_files = new_files
-            print(f"  跳过 {skipped_count} 个已存在的文件")
+            print(f"  跳过 {len(skipped_files)} 个已存在的文件")
             print(f"  实际处理 {len(pdf_files)} 个新文件")
             
             if len(pdf_files) == 0:
                 print("\n没有新文件需要处理")
                 # 仍然生成 Excel，包含所有数据
                 print("\n将基于现有文件生成 Excel...")
+        else:
+            pdf_files = all_pdf_files
         
         if len(pdf_files) > 0:
             # 去重
@@ -300,11 +301,11 @@ def option_2_classify_and_export():
         if mode == "incremental":
             print("\n合并新旧数据...")
             # 重新扫描 organized_dir 中的所有文件
-            all_pdf_files = get_all_pdf_files(organized_dir)
-            print(f"  共 {len(all_pdf_files)} 个文件")
+            all_organized_files = get_all_pdf_files(organized_dir)
+            print(f"  共 {len(all_organized_files)} 个文件")
             
             # 重新分类和解析所有文件
-            all_classified = processor._classify_reports(all_pdf_files)
+            all_classified = processor._classify_reports(all_organized_files)
             all_parsed_data = processor._parse_reports(all_classified)
         else:
             all_parsed_data = new_parsed_data
@@ -321,10 +322,10 @@ def option_2_classify_and_export():
         if mode == "incremental":
             print(f"\n（原有文件已保留，Excel 包含所有数据）")
         
-        # 归档处理过的文件
-        if len(pdf_files) > 0:
-            print("\n[归档] 移动已处理的文件到 raw/已处理/...")
-            archive_processed_files(pdf_files, input_dir)
+        # 归档所有扫描过的文件（包括新处理的和跳过的重复文件）
+        print("\n[归档] 移动已处理的文件到 raw/已处理/...")
+        all_processed_files = pdf_files + skipped_files
+        archive_processed_files(all_processed_files, input_dir)
         
         return True
         
@@ -371,12 +372,115 @@ def option_3_export_only():
         return False
 
 
+def option_4_check_duplicates():
+    """选项4：检查并清理重复文件"""
+    print("\n【功能4：检查并清理重复文件】")
+    
+    base_dir = Path(__file__).parent
+    raw_dir = base_dir / "raw"
+    
+    if not raw_dir.exists():
+        print(f"错误：找不到 raw 文件夹 {raw_dir}")
+        return False
+    
+    print(f"扫描目录：{raw_dir}")
+    print("\n正在扫描所有 PDF 文件...")
+    
+    # 获取所有 PDF 文件
+    all_pdf_files = get_all_pdf_files(raw_dir)
+    print(f"共找到 {len(all_pdf_files)} 个 PDF 文件")
+    
+    if len(all_pdf_files) == 0:
+        print("没有文件需要检查")
+        return False
+    
+    # 计算 MD5 并分组
+    print("\n正在计算文件 MD5...")
+    hash_map = {}
+    for pdf_path in all_pdf_files:
+        md5 = get_file_md5(pdf_path)
+        if md5:
+            if md5 not in hash_map:
+                hash_map[md5] = []
+            hash_map[md5].append(pdf_path)
+    
+    # 找出重复文件组
+    duplicates = {md5: files for md5, files in hash_map.items() if len(files) > 1}
+    
+    if not duplicates:
+        print("\n✓ 未发现重复文件！")
+        return True
+    
+    # 显示重复文件
+    total_duplicates = sum(len(files) - 1 for files in duplicates.values())
+    print(f"\n发现 {len(duplicates)} 组重复文件，共 {total_duplicates} 个重复副本：")
+    print("=" * 60)
+    
+    files_to_delete = []
+    
+    for idx, (md5, files) in enumerate(duplicates.items(), 1):
+        print(f"\n【重复组 {idx}】MD5: {md5[:16]}...")
+        print(f"  共 {len(files)} 个相同文件：")
+        
+        # 按路径排序，保留第一个，其余标记为可删除
+        files_sorted = sorted(files, key=lambda x: str(x))
+        for i, file_path in enumerate(files_sorted):
+            relative_path = file_path.relative_to(raw_dir)
+            if i == 0:
+                print(f"    [保留] {relative_path}")
+            else:
+                print(f"    [删除] {relative_path}")
+                files_to_delete.append(file_path)
+    
+    print("\n" + "=" * 60)
+    print(f"\n建议删除 {len(files_to_delete)} 个重复文件，保留 {len(all_pdf_files) - len(files_to_delete)} 个唯一文件")
+    
+    # 询问用户是否删除
+    print("\n请选择操作：")
+    print("  1. 删除所有重复文件（移动到回收站）")
+    print("  2. 取消")
+    
+    choice = input("\n请选择 (1/2): ").strip()
+    
+    if choice != "1":
+        print("\n已取消，未删除任何文件")
+        return False
+    
+    # 删除重复文件
+    print("\n正在删除重复文件...")
+    deleted_count = 0
+    failed_count = 0
+    
+    try:
+        import send2trash
+    except ImportError:
+        print("错误：未安装 send2trash 模块，无法移动到回收站")
+        print("请运行: pip install send2trash")
+        return False
+    
+    for file_path in files_to_delete:
+        try:
+            send2trash.send2trash(str(file_path))
+            print(f"  [已移至回收站] {file_path.name}")
+            deleted_count += 1
+        except Exception as e:
+            print(f"  [删除失败] {file_path.name}: {e}")
+            failed_count += 1
+    
+    print(f"\n✓ 完成！")
+    print(f"  成功删除: {deleted_count} 个文件")
+    if failed_count > 0:
+        print(f"  删除失败: {failed_count} 个文件")
+    
+    return True
+
+
 def main():
     """主函数"""
     while True:
         print_menu()
         
-        choice = input("\n请输入数字 (0/1/2/3): ").strip()
+        choice = input("\n请输入数字 (0/1/2/3/4): ").strip()
         
         if choice == "0":
             print("\n再见！")
@@ -387,6 +491,8 @@ def main():
             option_2_classify_and_export()
         elif choice == "3":
             option_3_export_only()
+        elif choice == "4":
+            option_4_check_duplicates()
         else:
             print("\n无效的选择，请重新输入")
         
