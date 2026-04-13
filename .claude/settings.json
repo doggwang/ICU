@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"c:/Users/39863/Desktop/ICU/\"*.pdf)",
+      "Bash(pdftotext -layout \"0412ba5362ea0cd45a2fa09ccf0bfb53.pdf\" -)",
+      "Bash(pdftotext -layout \"04ff92cc8df9f38c8be1ba226c2a9d39.pdf\" -)",
+      "Bash(pdftotext -layout \"0546cdcd2f597d4cd200d7eb5f7f491d.pdf\" -)",
+      "Bash(pdftotext -layout \"1e43a688932ff45a7b594f8344b55431.pdf\" -)",
+      "Bash(pdftotext -layout \"8bcf968c17fb41586f78ac4c25ec9543.pdf\" -)"
+    ]
+  }
+}

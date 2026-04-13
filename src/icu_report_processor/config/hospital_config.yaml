@@ -1,0 +1,380 @@
+# ICU 检测报告处理系统配置文件
+# 定义医院特定的解析规则和报告类型
+
+# 报告类型定义
+report_types:
+  blood_gas:
+    name: "血气分析"
+    folder_name: "血气分析"
+    description: "血气分析报告"
+    # 用于分类的关键词（文本中出现任意一个即匹配）
+    classification_keywords:
+      - "(ICU)(POCT)"
+      - "血气分析"
+      - "Blood Gas"
+      - "ABG"
+    # 用于确认的特征指标（可选，用于提高准确性）
+    indicator_fields:
+      - "pH"
+      - "PaO2"
+      - "PaCO2"
+      - "HCO3"
+      - "乳酸"
+    # 参考字段映射（用于数据提取）
+    field_mapping:
+      patient_name: "姓名"
+      patient_id: "病历号"
+      gender: "性别"
+      age: "年龄"
+      department: "科别"
+      bed_number: "床号"
+      sample_type: "样本种类"
+      diagnosis: "临床诊断"
+
+  blood_routine:
+    name: "血常规"
+    folder_name: "血常规"
+    description: "血常规检验报告"
+    classification_keywords:
+      - "HCRP"
+      - "血常规"
+      - "Blood Routine"
+      - "CBC"
+    indicator_fields:
+      - "白细胞计数"
+      - "红细胞计数"
+      - "血红蛋白"
+      - "血小板"
+    field_mapping:
+      patient_name: "姓名"
+      patient_id: "病历号"
+      gender: "性别"
+      age: "年龄"
+      department: "科别"
+      bed_number: "床号"
+      sample_type: "样本种类"
+      diagnosis: "临床诊断"
+
+  biochemistry:
+    name: "生化检验"
+    folder_name: "生化检验"
+    description: "生化检验报告"
+    classification_keywords:
+      - "AST:ALT"
+      - "UN:CREA"
+      - "eGFR-EPI"
+      - "生化"
+      - "Biochemistry"
+      - "生化检验"
+    indicator_fields:
+      - "ALT"
+      - "AST"
+      - "肌酐"
+      - "尿素"
+      - "血糖"
+    field_mapping:
+      patient_name: "姓名"
+      patient_id: "病历号"
+      gender: "性别"
+      age: "年龄"
+      department: "科别"
+      bed_number: "床号"
+      sample_type: "样本种类"
+      diagnosis: "临床诊断"
+
+  urine_routine:
+    name: "尿常规"
+    folder_name: "尿常规"
+    description: "尿常规检验报告"
+    classification_keywords:
+      - "1.003-1.030"
+      - "(-)("
+      - "尿常规"
+      - "Urine Routine"
+    indicator_fields:
+      - "比重"
+      - "pH"
+      - "尿蛋白"
+      - "尿糖"
+    field_mapping:
+      patient_name: "姓名"
+      patient_id: "病历号"
+      gender: "性别"
+      age: "年龄"
+      department: "科别"
+      bed_number: "床号"
+      sample_type: "样本种类"
+      diagnosis: "临床诊断"
+
+  d_dimer:
+    name: "D二聚体"
+    folder_name: "D二聚体"
+    description: "D-二聚体检测报告"
+    classification_keywords:
+      - "+D2"
+      - "D二聚体"
+      - "D-Dimer"
+    indicator_fields:
+      - "D-二聚体"
+      - "D二聚体"
+    field_mapping:
+      patient_name: "姓名"
+      patient_id: "病历号"
+      gender: "性别"
+      age: "年龄"
+      department: "科别"
+      bed_number: "床号"
+      sample_type: "样本种类"
+      diagnosis: "临床诊断"
+
+  bnp:
+    name: "BNP心衰标志物"
+    folder_name: "BNP心衰标志物"
+    description: "B型钠尿肽检测报告"
+    classification_keywords:
+      - "BNP"
+      - "B型钠尿肽"
+      - "NT-proBNP"
+    indicator_fields:
+      - "BNP"
+      - "NT-proBNP"
+    field_mapping:
+      patient_name: "姓名"
+      patient_id: "病历号"
+      gender: "性别"
+      age: "年龄"
+      department: "科别"
+      bed_number: "床号"
+      sample_type: "样本种类"
+      diagnosis: "临床诊断"
+
+  pct:
+    name: "PCT降钙素原"
+    folder_name: "PCT降钙素原"
+    description: "降钙素原检测报告"
+    classification_keywords:
+      - "ng/mL"
+      - "PCT"
+      - "降钙素原"
+    indicator_fields:
+      - "PCT"
+      - "降钙素原"
+    field_mapping:
+      patient_name: "姓名"
+      patient_id: "病历号"
+      gender: "性别"
+      age: "年龄"
+      department: "科别"
+      bed_number: "床号"
+      sample_type: "样本种类"
+      diagnosis: "临床诊断"
+
+  cytokines:
+    name: "炎症因子"
+    folder_name: "炎症因子"
+    description: "炎症因子检测报告"
+    classification_keywords:
+      - "IL-2"
+      - "IL-4"
+      - "IL-6"
+      - "IL-8"
+      - "IL-10"
+      - "炎症因子"
+      - "Cytokines"
+    indicator_fields:
+      - "IL-2"
+      - "IL-4"
+      - "IL-6"
+      - "IL-8"
+      - "IL-10"
+      - "TNF-α"
+    field_mapping:
+      patient_name: "姓名"
+      patient_id: "病历号"
+      gender: "性别"
+      age: "年龄"
+      department: "科别"
+      bed_number: "床号"
+      sample_type: "样本种类"
+      diagnosis: "临床诊断"
+
+  tbnk:
+    name: "TBNK免疫细胞"
+    folder_name: "TBNK免疫细胞"
+    description: "TBNK淋巴细胞亚群检测"
+    classification_keywords:
+      - "TBNK"
+      - "CD3+"
+      - "CD4+"
+      - "CD8+"
+      - "淋巴细胞亚群"
+    indicator_fields:
+      - "CD3+"
+      - "CD4+"
+      - "CD8+"
+      - "CD19+"
+      - "CD16+CD56+"
+    field_mapping:
+      patient_name: "姓名"
+      patient_id: "病历号"
+      gender: "性别"
+      age: "年龄"
+      department: "科别"
+      bed_number: "床号"
+      sample_type: "样本种类"
+      diagnosis: "临床诊断"
+
+  act:
+    name: "ACT活化凝血时间"
+    folder_name: "ACT活化凝血时间"
+    description: "活化凝血时间检测报告"
+    classification_keywords:
+      - "ACT"
+      - "活化凝血时间"
+      - "U/L"
+    indicator_fields:
+      - "ACT"
+      - "活化凝血时间"
+    field_mapping:
+      patient_name: "姓名"
+      patient_id: "病历号"
+      gender: "性别"
+      age: "年龄"
+      department: "科别"
+      bed_number: "床号"
+      sample_type: "样本种类"
+      diagnosis: "临床诊断"
+
+  drug_sensitivity:
+    name: "药敏试验"
+    folder_name: "药敏试验"
+    description: "药敏试验报告"
+    classification_keywords:
+      - "MIC"
+      - "g/ml"
+      - "药敏"
+      - "Drug Sensitivity"
+      - "抗生素"
+    indicator_fields:
+      - "MIC"
+      - "敏感"
+      - "耐药"
+      - "中介"
+    field_mapping:
+      patient_name: "姓名"
+      patient_id: "病历号"
+      gender: "性别"
+      age: "年龄"
+      department: "科别"
+      bed_number: "床号"
+      sample_type: "样本种类"
+      diagnosis: "临床诊断"
+
+  echocardiography:
+    name: "心脏超声"
+    folder_name: "心脏超声"
+    description: "心脏超声检查报告"
+    classification_keywords:
+      - "LVEF"
+      - "IVC"
+      - "心脏超声"
+      - "Echocardiography"
+      - "超声心动图"
+    indicator_fields:
+      - "LVEF"
+      - "IVC"
+      - "左室射血分数"
+    field_mapping:
+      patient_name: "姓名"
+      patient_id: "病历号"
+      gender: "性别"
+      age: "年龄"
+      department: "科别"
+      bed_number: "床号"
+      sample_type: "样本种类"
+      diagnosis: "临床诊断"
+
+# 医院特定配置（当前为默认配置）
+hospitals:
+  default:
+    name: "默认医院配置"
+    description: "基于当前ICU报告格式的默认配置"
+    # 患者信息提取正则表达式
+    patient_info_patterns:
+      patient_name: '姓\s*名[:\s]*([^\s\n]+)'
+      patient_id: '病\s*历\s*号[:\s]*([^\s\n]+)'
+      gender: '性\s*别[:\s]*([^\s\n]+)'
+      age: '年\s*龄[:\s]*([^\s\n]+)'
+      department: '科\s*别[:\s]*([^\s\n]+)'
+      bed_number: '床\s*号[:\s]*([^\s\n]+)'
+      sample_type: '样本种类[:\s]*([^\s\n]+)'
+      diagnosis: '临床诊断[:\s]*([^\n]+)'
+    
+    # 时间信息提取正则表达式
+    time_patterns:
+      collection_time: '采集时间[:\s]*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})'
+      receive_time: '接收时间[:\s]*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})'
+      report_time: '报告时间[:\s]*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})'
+    
+    # 检测项目表格提取配置
+    table_extraction:
+      # 表格行匹配正则
+      row_pattern: '\d+\s+\*?([^\d]+?)\s+([\d<>.]+)\s*([\u2191\u2193]?)\s+([^\s]+)'
+      # 参考区间识别模式
+      reference_patterns:
+        - '^[\d.]+-[\d.]+$'           # 7.35-7.45
+        - '^[\d.]+~[\d.]+$'           # 7.35~7.45
+        - '^[<>]=?[\d.]+$'            # <50, >=10
+        - '^[\d.]+[\s]*[-~][\s]*[\d.]+$'  # 带空格
+        - '^(阴性|阳性|正常|未检出)$'    # 定性结果
+      # 项目名称清理规则
+      name_cleanup:
+        - ['\*', '']                  # 移除星号标记
+        - ['\\s+', ' ']               # 规范化空格
+    
+    # Excel输出配置
+    excel_config:
+      # 固定列顺序
+      fixed_columns:
+        - "主时间"
+        - "接收时间"
+        - "采集时间"
+        - "报告时间"
+        - "报告类型"
+        - "姓名"
+        - "病历号"
+        - "性别"
+        - "年龄"
+        - "科室"
+        - "床号"
+        - "样本种类"
+        - "临床诊断"
+      # 排序列
+      sort_column: "主时间"
+      # 时间优先级（用于确定主时间）
+      time_priority:
+        - "接收时间"
+        - "采集时间"
+        - "报告时间"
+
+# 系统配置
+system:
+  # 支持的文件类型
+  supported_extensions:
+    - ".pdf"
+  
+  # PDF文本提取配置
+  pdf_extraction:
+    timeout: 30
+    encoding_priority:
+      - "utf-8"
+      - "latin-1"
+  
+  # 文件命名配置
+  filename_config:
+    # 非法字符替换
+    illegal_chars_replace:
+      '[<>\":/\\|?*\s]': "_"
+      '[\x00-\x1f\x7f-\xff]': ""
+    # 连续下划线合并
+    collapse_underscores: true
